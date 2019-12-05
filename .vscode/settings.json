@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/saiten/.platformio/penv/bin:/Users/saiten/.platformio/penv:/Users/saiten/.cargo/bin:/Users/saiten/perl5/bin:/Users/saiten/local/dev/flutter/bin:/Users/saiten/.cargo/bin:/usr/local/opt/openssl/bin:/usr/local/opt/pyenv/shims:/Users/saiten/local/android-ndk:/Users/saiten/local/android-sdk/platform-tools:/Users/saiten/.cabal/bin:/Users/saiten/.rbenv/shims:/Users/saiten/.nvm/versions/node/v8.3.0/bin:/Users/saiten/local/bin:/usr/local/share/python:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/bin:/libexec/bin:/Users/saiten/.go/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    },
+    "files.associations": {
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp"
+    }
+}
