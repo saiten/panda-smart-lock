@@ -12,6 +12,10 @@
         "array": "cpp",
         "string_view": "cpp",
         "initializer_list": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "*.inc": "cpp",
+        "uecc.h": "c",
+        "stdint.h": "c",
+        "typeinfo": "cpp"
     }
 }

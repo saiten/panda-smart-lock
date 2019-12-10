@@ -3,13 +3,15 @@
  */
 #pragma once
 
+#include "constant.h"
 #include <Adafruit_SSD1306.h>
 #include <simple_task.h>
 
 namespace task {
 class splash_task : public simple_task::task {
   public:
-    splash_task(Adafruit_SSD1306 *display) : display(display) {}
+    splash_task(Adafruit_SSD1306 *display)
+        : task(TASK_ID_SPLASH), display(display) {}
     void update() override;
     void on_attach(simple_task::task_manager *manager) override;
     void on_detach(simple_task::task_manager *manager) override;

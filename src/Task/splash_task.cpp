@@ -3,6 +3,7 @@
  */
 #include "task/splash_task.hpp"
 #include "fiatlogo.h"
+#include "task/advertisement_task.hpp"
 #include "task/menu_task.hpp"
 
 namespace task {
@@ -27,6 +28,8 @@ void splash_task::on_detach(simple_task::task_manager *manager) {
 
     menu_task *task = new menu_task(display);
     manager->add(task);
+    advertisement_task *adv_task = new advertisement_task();
+    manager->add(adv_task);
 }
 
 } // namespace task

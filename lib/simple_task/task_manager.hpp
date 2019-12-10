@@ -14,6 +14,7 @@ class task_manager {
     void add(task *t);
     void remove(task *t);
     task *get(int index);
+    task *get_by_id(uint32_t task_id);
     void update();
 
   private:

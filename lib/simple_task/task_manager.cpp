@@ -6,6 +6,7 @@
 
 namespace simple_task {
 task_manager::~task_manager() {
+    Serial.println("task manager dealloc");
     for(int index = _task_list.size() - 1; index >= 0; index--) {
         task *t = _task_list.get(index);
         _task_list.remove(index);
@@ -31,6 +32,16 @@ void task_manager::remove(task *t) {
 }
 
 task *task_manager::get(int index) { return _task_list.get(index); }
+
+task *task_manager::get_by_id(uint32_t task_id) {
+    for(int index = 0; index < _task_list.size(); index++) {
+        task *task = _task_list.get(index);
+        if(task->get_id() == task_id) {
+            return task;
+        }
+    }
+    return NULL;
+}
 
 void task_manager::update() {
     for(int index = 0; index < _task_list.size(); index++) {

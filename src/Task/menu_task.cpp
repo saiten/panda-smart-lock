@@ -3,12 +3,18 @@
  */
 #include "task/menu_task.hpp"
 #include "constant.h"
+#include "key_manager.hpp"
+#include "task/registration_task.hpp"
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
+#include <util.h>
 
 namespace task {
-void menu_task::on_attach(simple_task::task_manager *manager) {
-    Serial.println("attached menu task");
+static menu_task *current_task = NULL;
 
+void menu_task::on_attach(simple_task::task_manager *manager) {
     simple_task::task::on_attach(manager);
+    current_task = this;
 
     // clear display
     display->clearDisplay();
@@ -20,12 +26,20 @@ void menu_task::on_attach(simple_task::task_manager *manager) {
 
     if(menu.size() == 0) {
         auto *register_page = new simple_menu::page("Register Key");
-        register_page->append(new simple_menu::item("1.Start Advertising", NULL, NULL, NULL));
+        register_page->append(new simple_menu::item("1.Start", NULL, NULL, menu_task::select_registration_key));
         register_page->append(new simple_menu::back_item());
+
+        auto *keylist_page = new simple_menu::page("Key List");
+        key_manager manager(64);
+        auto *list = manager.get_list();
+        for(int i = 0; i < list->size(); i++) {
+            keylist_page->append(new simple_menu::item(list->get(i), NULL, NULL, menu_task::select_key));
+        }
+        keylist_page->append(new simple_menu::back_item());
 
         auto *main_page = new simple_menu::page("Panda SmartLock");
         main_page->append(new simple_menu::item("1.Register Key", register_page, NULL, NULL));
-        main_page->append(new simple_menu::item("2.Key List", NULL, NULL, NULL));
+        main_page->append(new simple_menu::item("2.Key List", keylist_page, NULL, NULL));
         main_page->append(new simple_menu::item("3.About", NULL, NULL, NULL));
 
         menu.push(main_page);
@@ -38,10 +52,14 @@ void menu_task::on_attach(simple_task::task_manager *manager) {
 
 void menu_task::on_detach(simple_task::task_manager *manager) {
     simple_task::task::on_detach(manager);
-    Serial.println("detached menu task");
+    current_task = NULL;
 }
 
 void menu_task::update() {
+    if(current_task == NULL) {
+        return;
+    }
+
     int input_button = get_input_button();
     if(display_sleeped) {
         if(input_button != 0) {
@@ -81,6 +99,10 @@ void menu_task::sleep_display() { display->ssd1306_command(SSD1306_DISPLAYOFF); 
 void menu_task::wake_display() { display->ssd1306_command(SSD1306_DISPLAYON); }
 
 int menu_task::get_input_button() {
+    // 起動直後は別タスクのボタン処理を引きずっているので少し無視する
+    if(millis() - _attached_time <= 500) {
+        return 0;
+    }
     if(!digitalRead(BUTTON_A)) {
         return BUTTON_A;
     } else if(!digitalRead(BUTTON_B)) {
@@ -89,6 +111,28 @@ int menu_task::get_input_button() {
         return BUTTON_C;
     }
     return 0;
+}
+
+void menu_task::select_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+    if(current_task == NULL) {
+        return;
+    }
+    Serial.println("select registration key");
+
+    current_task->display->clearDisplay();
+    current_task->display->display();
+
+    // 登録モード用ファイル作成
+    Adafruit_LittleFS_Namespace::File file(REGISTER_MODE_FILE_PATH, Adafruit_LittleFS_Namespace::FILE_O_WRITE, InternalFS);
+    VERIFY(file, )
+    file.write("_");
+    file.close();
+
+    // リセット
+    util::software_reset(15);
+}
+
+void menu_task::select_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
 }
 
 } // namespace task

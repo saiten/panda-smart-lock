@@ -64,16 +64,15 @@ class list {
             prev = curr;
             curr = curr->next;
         }
-        if(!prev) {
-            head = curr->next;
-            delete curr;
+        if(prev) {
+            prev->next = curr->next;
         } else {
-            prev = curr->next;
-            delete curr;
+            head = curr->next;
         }
         if(curr == head) {
             head = NULL;
         }
+        delete curr;
         _size--;
     }
 
@@ -94,5 +93,6 @@ class list {
 
     node *head;
     int _size;
+    bool _autodelete = false;
 };
 } // namespace util

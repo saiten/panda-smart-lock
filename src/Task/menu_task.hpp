@@ -3,6 +3,7 @@
  */
 #pragma once
 
+#include "constant.h"
 #include <Adafruit_SSD1306.h>
 #include <simple_menu.h>
 #include <simple_task.h>
@@ -13,7 +14,7 @@ namespace task {
 class menu_task : public simple_task::task {
   public:
     menu_task(Adafruit_SSD1306 *display)
-        : display(display), menu(simple_menu::menu(display)) {}
+        : task(TASK_ID_MENU), display(display), menu(simple_menu::menu(display)) {}
     void update() override;
     void on_attach(simple_task::task_manager *manager) override;
     void on_detach(simple_task::task_manager *manager) override;
@@ -29,6 +30,8 @@ class menu_task : public simple_task::task {
     int get_input_button();
     void sleep_display();
     void wake_display();
+    static void select_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+    static void select_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
 };
 
 } // namespace task

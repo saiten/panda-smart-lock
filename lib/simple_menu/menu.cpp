@@ -70,7 +70,6 @@ void menu::set_select_index(int index) {
     page *page = get_current_page();
 
     if(page->set_selected_index(index)) {
-        Serial.printf("selected index = %d\n", page->get_selected_index());
         item *item = this->get_selected_item();
         if(item != NULL && item->on_selected) {
             (*item->on_selected)(this, page, item);

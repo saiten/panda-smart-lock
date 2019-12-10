@@ -42,6 +42,6 @@ int page::get_selected_index() { return selected_index; }
 int page::size() { return item_list.size(); }
 
 item *page::get_item(int index) { return item_list.get(index); }
-const char *page::get_title() { return title; }
+String page::get_title() { return title; }
 
 } // namespace simple_menu
