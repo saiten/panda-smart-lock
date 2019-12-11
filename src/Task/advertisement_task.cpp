@@ -58,7 +58,7 @@ void advertisement_task::on_disconnect(uint16_t conn_handle, uint8_t reason) {
 }
 
 void advertisement_task::on_operatation_received(uint8_t operation) {
-    Serial.printf("operation received. operation=%d\n", operation);
+    Serial.printf("operation received. operation = %d\n", operation);
 }
 
 void advertisement_task::update_challenge() {

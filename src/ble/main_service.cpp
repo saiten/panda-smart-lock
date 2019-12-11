@@ -68,26 +68,31 @@ void main_service::verify(const uint8_t *data, uint16_t len) {
         operation_char.notify8(1);
         return;
     }
-    int salt_size = len - SIGNATURE_SIZE;
-    if(salt_size != (NAME_LENGTH - 1) + 1 + 1 + CHALLENGE_SIZE) {
+    int payload_size = len - SIGNATURE_SIZE;
+    if(payload_size != NAME_LENGTH + 2 + CHALLENGE_SIZE) {
         Serial.printf("invalid data\n");
         operation_char.notify8(1);
         return;
     }
 
-    char name[NAME_LENGTH];
-    memcpy(name, data, NAME_LENGTH - 1);
-    name[NAME_LENGTH - 1] = '\0';
+    char name[NAME_LENGTH + 1];
+    memcpy(name, data, NAME_LENGTH);
+    name[NAME_LENGTH] = '\0';
 
     uint8_t operation = *(data + NAME_LENGTH);
-    uint8_t rssi = *(data + NAME_LENGTH + 1);
+    int8_t rssi = *(data + NAME_LENGTH + 1);
 
     uint8_t receive_challenge[CHALLENGE_SIZE];
     memcpy(receive_challenge, data + NAME_LENGTH + 2, CHALLENGE_SIZE);
 
+    Serial.printf("name = %s, rssi = %d, challenge = 0x%02x%02x%02x%02x%02x%02x%02x%02x\n",
+                  name, rssi,
+                  receive_challenge[0], receive_challenge[1], receive_challenge[2], receive_challenge[3],
+                  receive_challenge[4], receive_challenge[5], receive_challenge[6], receive_challenge[7]);
+
     uint8_t public_key[PUBLIC_KEY_SIZE];
-    key_manager manager(PUBLIC_KEY_SIZE);
-    if(!manager.load(name, public_key)) {
+    auto manager = key_manager();
+    if(manager.load(name, public_key) != ERROR_NONE) {
         Serial.printf("key not found\n");
         operation_char.notify8(2);
         return;
@@ -95,11 +100,11 @@ void main_service::verify(const uint8_t *data, uint16_t len) {
 
     uint8_t hash[DIGEST_SIZE];
     SHA256 sha256 = SHA256();
-    sha256.update(data, salt_size);
+    sha256.update(data, payload_size);
     sha256.finalize(hash, DIGEST_SIZE);
 
     uECC_Curve curve = uECC_secp256r1();
-    int retval = uECC_verify(public_key, hash, 32, data + salt_size, curve);
+    int retval = uECC_verify(public_key, hash, 32, data + payload_size, curve);
     Serial.printf("verify retval = %d\n", retval);
     if(retval) {
         bool c = true;
@@ -124,6 +129,7 @@ void main_service::verify(const uint8_t *data, uint16_t len) {
 
 void main_service::operation_write_callback(uint16_t conn_hdl, BLECharacteristic *chr, uint8_t *data, uint16_t len) {
     main_service &service = (main_service &)chr->parentService();
+    service.verify(data, len);
 }
 
 void main_service::cccd_write_callback(uint16_t conn_hdl, BLECharacteristic *chr, uint16_t value) {

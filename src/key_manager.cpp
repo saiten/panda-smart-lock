@@ -2,7 +2,6 @@
  * key_manager.cpp
  */
 #include "key_manager.hpp"
-
 #include "constant.h"
 #include <Adafruit_LittleFS.h>
 #include <InternalFileSystem.h>
@@ -35,6 +34,16 @@ err_t key_manager::save(const char *name, const uint8_t *public_key) {
     VERIFY(file);
     file.write(public_key, key_size);
     file.close();
+    return ERROR_NONE;
+}
+
+err_t key_manager::remove(const char *name) {
+    char path[MAX_PATH_LEN];
+    snprintf(path, MAX_PATH_LEN, PUB_KEY_FILE_PATH, name);
+
+    if(InternalFS.exists(path)) {
+        InternalFS.remove(path);
+    }
     return ERROR_NONE;
 }
 

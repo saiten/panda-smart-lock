@@ -23,6 +23,7 @@ class menu {
     void down();
     void enter();
 
+    void swap(page *page);
     void push(page *page);
     void pop();
 

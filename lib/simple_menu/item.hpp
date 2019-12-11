@@ -13,16 +13,17 @@ class page;
 struct item {
     typedef void (*callback_t)(menu *, page *, item *);
 
-    item(String title, page *subpage, callback_t on_selected, callback_t on_entered)
-        : title(title), subpage(subpage), on_selected(on_selected), on_entered(on_entered) {}
+    item(String title, const void *info, callback_t on_selected, callback_t on_entered)
+        : title(title), info(info), on_selected(on_selected), on_entered(on_entered) {}
     String title;
-    page *subpage;
+    const void *info;
     callback_t on_selected;
     callback_t on_entered;
 };
 
 struct back_item : public item {
-    back_item() : item(String("Back"), NULL, NULL, back_item::_on_entered) {}
+    back_item(String title) : item(title, NULL, NULL, back_item::_on_entered) {}
+    back_item() : back_item("Back") {}
 
   private:
     static void _on_entered(menu *menu, page *, item *item);

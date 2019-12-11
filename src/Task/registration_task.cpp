@@ -2,7 +2,6 @@
  * advertisement.cpp
  */
 #include "task/registration_task.hpp"
-#include "key_manager.hpp"
 #include "task/advertisement_task.hpp"
 #include "task/menu_task.hpp"
 #include <util.h>
@@ -27,20 +26,20 @@ void registration_task::update() {
         display->printf("NAME: %s\n", name);
         const uint8_t *p = registration_service.get_pin_code();
         display->printf("PIN: %d%d%d%d%d%d\n", p[0], p[1], p[2], p[3], p[4], p[5]);
-        display->print("(A) Register (B) Abort");
+        display->print("A:Register B:Abort");
         display->display();
 
         if(!digitalRead(BUTTON_A)) {
-            key_manager manager(PUBLIC_KEY_SIZE);
-            manager.save(name, registration_service.get_tmp_public_key());
+            registration_service.save();
             display->clearDisplay();
             display->setCursor(0, 0);
             display->println("register completed");
             display->display();
             delay(1000);
             destroy();
-        } else {
-            confirm_mode = false;
+        } else if(!digitalRead(BUTTON_B)) {
+            registration_service.abort();
+            current_task->confirm_mode = false;
         }
     } else {
         display->clearDisplay();
@@ -62,6 +61,8 @@ void registration_task::on_attach(simple_task::task_manager *manager) {
 
     Serial.printf("start registration task.\n");
 
+    pinMode(BUTTON_A, INPUT_PULLUP);
+    pinMode(BUTTON_B, INPUT_PULLUP);
     pinMode(BUTTON_C, INPUT_PULLUP);
 
     registration_service.begin();

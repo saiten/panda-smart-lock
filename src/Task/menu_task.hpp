@@ -30,8 +30,15 @@ class menu_task : public simple_task::task {
     int get_input_button();
     void sleep_display();
     void wake_display();
+
     static void select_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
-    static void select_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+    static void select_key_list(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+    static void select_about(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+
+    static void start_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+
+    static void select_delete_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
+    static void remove_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item);
 };
 
 } // namespace task

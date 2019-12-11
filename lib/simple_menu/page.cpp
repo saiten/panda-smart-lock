@@ -16,8 +16,16 @@ page::~page() {
 }
 
 void page::append(item *item) {
-    Serial.printf("add item = %s\n", item->title);
+    Serial.printf("add item = %s\n", item->title.c_str());
     item_list.add(item);
+}
+
+void page::remove(item *item) {
+    Serial.printf("remove item = %s\n", item->title.c_str());
+    int index = item_list.first_index(item);
+    if(index >= 0) {
+        item_list.remove(index);
+    }
 }
 
 bool page::set_selected_index(int index) {

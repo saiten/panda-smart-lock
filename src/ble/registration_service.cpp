@@ -3,6 +3,7 @@
  */
 #include "registration_service.hpp"
 #include "bluefruit.h"
+#include "key_manager.hpp"
 #include <SHA256.h>
 #include <uECC.h>
 
@@ -44,6 +45,21 @@ err_t registration_service::begin() {
     VERIFY_STATUS(verify_sign_char.begin());
 
     return ERROR_NONE;
+}
+
+void registration_service::save() {
+    auto manager = key_manager();
+    manager.save(name, tmp_public_key);
+
+    verify_sign_char.notify8(0);
+}
+
+void registration_service::abort() {
+    tmp_public_key_offset = 0;
+    memset(tmp_public_key, 0, PUBLIC_KEY_SIZE);
+    memset(name, 0, NAME_LENGTH);
+
+    verify_sign_char.notify8(1);
 }
 
 const char *registration_service::get_name() {
@@ -98,7 +114,7 @@ void registration_service::verify_sign(uint8_t *data, uint16_t len) {
         return;
     }
 
-    int salt_size = len - SIGNATURE_SIZE;
+    int payload_size = len - SIGNATURE_SIZE;
 
     Serial.printf("publickey = ");
     for(int i = 0; i < PUBLIC_KEY_SIZE; i++) {
@@ -106,21 +122,21 @@ void registration_service::verify_sign(uint8_t *data, uint16_t len) {
     }
     Serial.printf("\n");
 
-    Serial.printf("salt = ");
-    for(int i = 0; i < salt_size; i++) {
+    Serial.printf("payload = ");
+    for(int i = 0; i < payload_size; i++) {
         Serial.printf("%02x", data[i]);
     }
     Serial.printf("\n");
 
     Serial.printf("signature = ");
-    for(int i = salt_size; i < salt_size + 64; i++) {
+    for(int i = payload_size; i < payload_size + 64; i++) {
         Serial.printf("%02x", data[i]);
     }
     Serial.printf("\n");
 
     uint8_t hash[DIGEST_SIZE];
     SHA256 sha256 = SHA256();
-    sha256.update(data, salt_size);
+    sha256.update(data, payload_size);
     sha256.finalize(hash, DIGEST_SIZE);
 
     Serial.printf("hash = ");
@@ -130,21 +146,28 @@ void registration_service::verify_sign(uint8_t *data, uint16_t len) {
     Serial.printf("\n");
 
     uECC_Curve curve = uECC_secp256r1();
-    int retval = uECC_verify(tmp_public_key, hash, 32, data + salt_size, curve);
+    int retval = uECC_verify(tmp_public_key, hash, 32, data + payload_size, curve);
     Serial.printf("verify retval = %d\n", retval);
     if(retval) {
         // valid signature
-        if(salt_size == 7) {
-            memcpy(name, data, NAME_LENGTH - 1);
-            name[NAME_LENGTH - 1] = '\0';
+        if(payload_size == 7) {
+            memcpy(name, data, NAME_LENGTH);
+            name[NAME_LENGTH] = '\0';
 
             for(int i = 0; i < 3; i++) {
-                uint8_t val = *(data + 4 + i);
-                pin_code[i * 2] = val & 0xF0 >> 4;
+                uint8_t val = *(data + NAME_LENGTH + i);
+                pin_code[i * 2] = (val & 0xF0) >> 4;
                 pin_code[i * 2 + 1] = val & 0xF;
             }
+            Serial.printf("name = %s\n", name);
+            Serial.printf("pincode = %d, %d, %d, %d, %d, %d\n",
+                          pin_code[0], pin_code[1], pin_code[2], pin_code[3], pin_code[4], pin_code[5]);
 
             verify_sign_char.notify8(0);
+
+            if(confirm_register_callback) {
+                confirm_register_callback(this, name, pin_code);
+            }
         } else {
             verify_sign_char.notify8(1);
         }

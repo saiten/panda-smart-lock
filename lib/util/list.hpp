@@ -85,6 +85,18 @@ class list {
         return curr->value;
     }
 
+    int first_index(T value) {
+        int i = 0;
+        node *curr = head;
+        while(curr) {
+            if(curr->value == value) {
+                return i;
+            }
+            curr = curr->next;
+        }
+        return -1;
+    }
+
   private:
     struct node {
         T value;

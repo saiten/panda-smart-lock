@@ -16,6 +16,7 @@ class page {
     ~page();
 
     void append(item *item);
+    void remove(item *item);
     bool set_selected_index(int index);
     int get_selected_index();
     int size();

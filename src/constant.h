@@ -25,4 +25,4 @@
 #define DIGEST_SIZE 32
 
 #define PIN_CODE_LENGTH 6
-#define NAME_LENGTH (4 + 1)
+#define NAME_LENGTH 4

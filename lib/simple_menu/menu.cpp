@@ -16,7 +16,7 @@ menu::~menu() {
 }
 
 void menu::push(page *page) {
-    Serial.printf("push page = %s\n", page->get_title());
+    Serial.printf("push page = %s\n", page->get_title().c_str());
     page_list.add(page);
     page->set_selected_index(0);
 }
@@ -100,9 +100,6 @@ void menu::enter() {
         if(item->on_entered) {
             (*item->on_entered)(this, page, item);
         }
-        if(item->subpage) {
-            push(item->subpage);
-        }
     }
 }
 
@@ -110,7 +107,9 @@ void menu::pop() {
     Serial.println("menu back");
     int size = page_list.size();
     if(size > 0) {
+        auto *page = page_list.get(size - 1);
         page_list.remove(size - 1);
+        delete page;
     }
 }
 

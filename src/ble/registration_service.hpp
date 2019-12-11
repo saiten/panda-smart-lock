@@ -14,7 +14,11 @@ class registration_service : public BLEService {
 
     registration_service();
     err_t begin(void);
+
     void set_confirm_register_callback(confirm_register_callback_t callback);
+
+    void save();
+    void abort();
 
     const char *get_name();
     const uint8_t *get_tmp_public_key();
@@ -26,7 +30,7 @@ class registration_service : public BLEService {
     uint8_t tmp_public_key[PUBLIC_KEY_SIZE];
     uint8_t tmp_public_key_offset = 0;
     uint8_t pin_code[PIN_CODE_LENGTH];
-    char name[NAME_LENGTH];
+    char name[NAME_LENGTH + 1];
 
     confirm_register_callback_t confirm_register_callback;
 

@@ -25,23 +25,11 @@ void menu_task::on_attach(simple_task::task_manager *manager) {
     pinMode(BUTTON_C, INPUT_PULLUP);
 
     if(menu.size() == 0) {
-        auto *register_page = new simple_menu::page("Register Key");
-        register_page->append(new simple_menu::item("1.Start", NULL, NULL, menu_task::select_registration_key));
-        register_page->append(new simple_menu::back_item());
-
-        auto *keylist_page = new simple_menu::page("Key List");
-        key_manager manager(64);
-        auto *list = manager.get_list();
-        for(int i = 0; i < list->size(); i++) {
-            keylist_page->append(new simple_menu::item(list->get(i), NULL, NULL, menu_task::select_key));
-        }
-        keylist_page->append(new simple_menu::back_item());
-
+        // メインメニュー
         auto *main_page = new simple_menu::page("Panda SmartLock");
-        main_page->append(new simple_menu::item("1.Register Key", register_page, NULL, NULL));
-        main_page->append(new simple_menu::item("2.Key List", keylist_page, NULL, NULL));
-        main_page->append(new simple_menu::item("3.About", NULL, NULL, NULL));
-
+        main_page->append(new simple_menu::item("1.Register Key", NULL, NULL, menu_task::select_registration_key));
+        main_page->append(new simple_menu::item("2.Key List", NULL, NULL, menu_task::select_key_list));
+        main_page->append(new simple_menu::item("3.About", NULL, NULL, menu_task::select_about));
         menu.push(main_page);
     }
 
@@ -114,6 +102,14 @@ int menu_task::get_input_button() {
 }
 
 void menu_task::select_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+    // 登録
+    auto *subpage = new simple_menu::page("Register Key");
+    subpage->append(new simple_menu::item("1.Start", NULL, NULL, menu_task::start_registration_key));
+    subpage->append(new simple_menu::back_item());
+    menu->push(subpage);
+}
+
+void menu_task::start_registration_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
     if(current_task == NULL) {
         return;
     }
@@ -132,7 +128,36 @@ void menu_task::select_registration_key(simple_menu::menu *menu, simple_menu::pa
     util::software_reset(15);
 }
 
-void menu_task::select_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+void menu_task::select_key_list(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+    // キー一覧
+    auto *subpage = new simple_menu::page("Key List");
+    auto _manager = key_manager();
+    auto *list = _manager.get_list();
+    for(int i = 0; i < list->size(); i++) {
+        subpage->append(new simple_menu::item(list->get(i), NULL, NULL, menu_task::select_delete_key));
+    }
+    subpage->append(new simple_menu::back_item());
+    menu->push(subpage);
+}
+
+void menu_task::select_delete_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+    // キー削除
+    auto *subpage = new simple_menu::page("Delete " + item->title + "?");
+    subpage->append(new simple_menu::back_item("NO"));
+    subpage->append(new simple_menu::item("YES", item->title.c_str(), NULL, menu_task::remove_key));
+    menu->push(subpage);
+}
+
+void menu_task::remove_key(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
+    const char *name = (const char *)item->info;
+    Serial.printf("delete key %s\n", name);
+    auto manager = key_manager();
+    manager.remove(name);
+    menu->pop();
+    menu->pop(); // 雑
+}
+
+void menu_task::select_about(simple_menu::menu *menu, simple_menu::page *page, simple_menu::item *item) {
 }
 
 } // namespace task

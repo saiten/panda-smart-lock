@@ -4,11 +4,13 @@
 #pragma once
 
 #include "bluefruit.h"
+#include "constant.h"
 #include <util.h>
 
 class key_manager {
   public:
     key_manager(uint16_t key_size) : key_size(key_size){};
+    key_manager() : key_manager(PUBLIC_KEY_SIZE) {}
     ~key_manager(){};
 
     err_t load(const char *name, uint8_t *public_key);
