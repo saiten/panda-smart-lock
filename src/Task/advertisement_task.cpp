@@ -59,6 +59,31 @@ void advertisement_task::on_disconnect(uint16_t conn_handle, uint8_t reason) {
 
 void advertisement_task::on_operatation_received(uint8_t operation) {
     Serial.printf("operation received. operation = %d\n", operation);
+    if(!(operation == COMMAND_LOCK || operation == COMMAND_UNLOCK || operation == COMMAND_ANSWER_BACK)) {
+        Serial.printf("invalid operation. operation = %d\n");
+    }
+
+    if(operation == COMMAND_LOCK) {
+        digitalWrite(PIN_LOCK, LOW);
+    } else if(operation == COMMAND_UNLOCK) {
+        digitalWrite(PIN_UNLOCK, LOW);
+    }
+
+    digitalWrite(PIN_WINKER, LOW);
+
+    delay(500);
+
+    if(operation == COMMAND_LOCK) {
+        digitalWrite(PIN_LOCK, HIGH);
+    } else if(operation == COMMAND_UNLOCK) {
+        digitalWrite(PIN_UNLOCK, HIGH);
+    }
+
+    digitalWrite(PIN_WINKER, HIGH);
+    delay(500);
+    digitalWrite(PIN_WINKER, LOW);
+    delay(500);
+    digitalWrite(PIN_WINKER, HIGH);
 }
 
 void advertisement_task::update_challenge() {

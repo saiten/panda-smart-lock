@@ -18,6 +18,7 @@ void setup() {
 
     randomSeed(analogRead(0));
 
+    setup_pin();
     setup_file_system();
     setup_ble();
 
@@ -38,6 +39,15 @@ void setup() {
 void loop() {
     task_manager.update();
     yield();
+}
+
+void setup_pin() {
+    digitalWrite(PIN_LOCK, HIGH);
+    digitalWrite(PIN_UNLOCK, HIGH);
+    digitalWrite(PIN_WINKER, HIGH);
+    pinMode(PIN_LOCK, OUTPUT);
+    pinMode(PIN_UNLOCK, OUTPUT);
+    pinMode(PIN_WINKER, OUTPUT);
 }
 
 void setup_file_system() {

@@ -26,3 +26,11 @@
 
 #define PIN_CODE_LENGTH 6
 #define NAME_LENGTH 4
+
+#define PIN_LOCK 2
+#define PIN_UNLOCK 3
+#define PIN_WINKER 4
+
+#define COMMAND_LOCK 0x01
+#define COMMAND_UNLOCK 0x02
+#define COMMAND_ANSWER_BACK 0x03

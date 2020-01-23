@@ -121,6 +121,7 @@ void main_service::verify(const uint8_t *data, uint16_t len) {
         if(operation_callback) {
             operation_callback(operation);
         }
+        operation_char.notify8(0);
     } else {
         Serial.printf("invalid signature\n");
         operation_char.notify8(1);
@@ -133,6 +134,7 @@ void main_service::operation_write_callback(uint16_t conn_hdl, BLECharacteristic
 }
 
 void main_service::cccd_write_callback(uint16_t conn_hdl, BLECharacteristic *chr, uint16_t value) {
+    Serial.printf("cccd write callback value = %d\n", value);
 }
 
 } // namespace ble
