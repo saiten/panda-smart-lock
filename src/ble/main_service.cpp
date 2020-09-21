@@ -90,6 +90,12 @@ void main_service::verify(const uint8_t *data, uint16_t len) {
                   receive_challenge[0], receive_challenge[1], receive_challenge[2], receive_challenge[3],
                   receive_challenge[4], receive_challenge[5], receive_challenge[6], receive_challenge[7]);
 
+    if(memcmp(challenge, receive_challenge, CHALLENGE_SIZE) != 0) {
+        Serial.printf("invalid challeng\n");
+        operation_char.notify8(1);
+        return;
+    }
+
     uint8_t public_key[PUBLIC_KEY_SIZE];
     auto manager = key_manager();
     if(manager.load(name, public_key) != ERROR_NONE) {
